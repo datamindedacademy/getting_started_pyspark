@@ -10,34 +10,6 @@ from pyspark.sql import Column, DataFrame
 
 from exercises.shared import ministers, spark
 
-########################################
-# GROUPBY
-########################################
-# Both "groupBy" and "groupby" exist. The latter is a reference to the
-# former, to accommodate user complaints that groupBy isn't PEP8 compliant.
-(
-    ministers.groupby("party")
-    .agg(psf.sum("consecutive_terms").alias("total_number_of_terms"))
-    .show()
-)
-
-ministers.groupby("party").count().show()
-
-########################################
-# JOIN (a non-equi join)
-########################################
-uk_monarchs = spark.createDataFrame(
-    data=[
-        ("Queen Elizabeth II", 1952, None),
-        ("King George VI", 1936, 1952),
-        ("King Edward VIII", 1936, 1936),
-    ],
-    schema=("monarch", "reign start", "reign stop"),
-)
-
-uk_monarchs.show()
-uk_monarchs.printSchema()
-
 
 def monarch_reign_overlaps_with_minister_office(
     monarchs: DataFrame, ministers: DataFrame
@@ -77,8 +49,37 @@ def ranges_overlap(
     )
 
 
-ministers.join(
-    other=uk_monarchs,
-    on=monarch_reign_overlaps_with_minister_office(uk_monarchs, ministers),
-    how="left",
-).orderBy("entered_office_on", "reign start").show()
+if __name__ == "__main__":
+    ########################################
+    # GROUPBY
+    ########################################
+    # Both "groupBy" and "groupby" exist. The latter is a reference to the
+    # former, to accommodate user complaints that groupBy isn't PEP8 compliant.
+    (
+        ministers.groupby("party")
+        .agg(psf.sum("consecutive_terms").alias("total_number_of_terms"))
+        .show()
+    )
+
+    ministers.groupby("party").count().show()
+
+    ########################################
+    # JOIN (a non-equi join)
+    ########################################
+    uk_monarchs = spark.createDataFrame(
+        data=[
+            ("Queen Elizabeth II", 1952, None),
+            ("King George VI", 1936, 1952),
+            ("King Edward VIII", 1936, 1936),
+        ],
+        schema=("monarch", "reign start", "reign stop"),
+    )
+
+    uk_monarchs.show()
+    uk_monarchs.printSchema()
+
+    ministers.join(
+        other=uk_monarchs,
+        on=monarch_reign_overlaps_with_minister_office(uk_monarchs, ministers),
+        how="left",
+    ).orderBy("entered_office_on", "reign start").show()

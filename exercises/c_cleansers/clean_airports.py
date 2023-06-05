@@ -3,7 +3,7 @@ import findspark
 findspark.init()
 from pyspark.sql import SparkSession
 
-from exercises.i_catalog.catalog import catalog, load_frame_from_catalog
+from exercises.utils.catalog import catalog, load_frame_from_catalog
 
 
 def main():

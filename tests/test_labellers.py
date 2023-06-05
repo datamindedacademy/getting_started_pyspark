@@ -8,8 +8,10 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import (BooleanType, DateType, StringType, StructField,
                                StructType)
 
-from exercises.b_labellers.dates import (is_belgian_holiday, label_holidays,
-                                         label_weekend)
+from exercises.b_labellers.dates import is_belgian_holiday
+from exercises.b_labellers.dates import \
+    label_holidays2 as label_holidays
+from exercises.b_labellers.dates_solution import label_weekend
 from tests.comparers import assert_frames_functionally_equivalent
 
 spark = SparkSession.builder.master("local[*]").getOrCreate()
@@ -21,7 +23,7 @@ def test_label_weekend():
 
     expected = spark.createDataFrame(
         data=[
-            (date(2018, 5, 12), "a", True),
+            (date(2023, 6, 4), "a", True),
             (date(2019, 5, 13), "b", False),
         ],
         schema=(
@@ -35,6 +37,7 @@ def test_label_weekend():
     frame_in = expected.select("date", "foo")
 
     actual = label_weekend(frame_in)
+    actual.printSchema()
     assert_frames_functionally_equivalent(actual, expected)
 
 
@@ -83,9 +86,9 @@ def test_pure_python_function():
     # For this reason, tests involving Spark are typically run less often than
     # tests without Spark, though a good Continuous Integration system will
     # still run _all_ tests, before merging to the main branch!
-    day1 = dt.date(2020, 7, 21)
-    national_holiday = dt.date(2020, 7, 21)
-    day_after_national_holiday = dt.date(2020, 7, 22)
+    day1 = dt.date(2023, 7, 21)
+    national_holiday = dt.date(2023, 7, 21)
+    day_after_national_holiday = dt.date(2023, 7, 22)
 
     assert is_belgian_holiday(day1)
     assert is_belgian_holiday(national_holiday)
